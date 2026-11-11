@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// 숙제보드 Firestore Security Rules
+// - users/{uid} 이하 데이터는 로그인한 본인(request.auth.uid == uid)만 읽고 쓸 수 있다.
+// - 화면에서 버튼을 숨기는 것과 별개로, 허용되지 않은 요청은 여기서 거절된다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function isValidCharacter(data) {
+      return data.keys().hasOnly(['gameId', 'name', 'createdAt'])
+        && data.gameId in ['maplestory', 'trickcal']
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 20
+        && data.createdAt is timestamp;
+    }
+
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /characters/{characterId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid) && isValidCharacter(request.resource.data);
+        // 이름만 바꿀 수 있다 (게임·생성일은 변경 불가)
+        allow update: if isOwner(uid)
+          && isValidCharacter(request.resource.data)
+          && request.resource.data.gameId == resource.data.gameId
+          && request.resource.data.createdAt == resource.data.createdAt;
+      }
+    }
+  }
+}
