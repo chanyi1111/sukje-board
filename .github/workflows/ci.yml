@@ -1,0 +1,31 @@
+# 모든 push와 Pull Request마다 타입 검사·빌드·단위 테스트를 자동으로 실행한다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 저장소 코드 가져오기
+        uses: actions/checkout@v4
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 의존성 설치
+        run: npm ci
+
+      - name: 타입 검사 + 빌드
+        run: npm run build
+
+      - name: 단위 테스트
+        run: npm run test:unit -- --run
