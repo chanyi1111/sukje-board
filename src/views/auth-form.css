@@ -1,0 +1,63 @@
+.auth-card {
+  max-width: 380px;
+  margin: 40px auto;
+  padding: 32px;
+  background: #fff;
+  border: 1px solid #e3e6ef;
+  border-radius: 12px;
+}
+h1 {
+  margin: 0 0 24px;
+  font-size: 1.5rem;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+input {
+  padding: 10px 12px;
+  border: 1px solid #d0d4e0;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+}
+input:focus {
+  outline: 2px solid #3b4cca33;
+  border-color: #3b4cca;
+}
+.field-error {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #b42318;
+}
+.submit-error {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #b42318;
+  font-size: 0.9rem;
+}
+button[type='submit'] {
+  margin-top: 20px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  background: #3b4cca;
+  color: #fff;
+  font-weight: 600;
+}
+.switch {
+  margin: 20px 0 0;
+  text-align: center;
+  font-size: 0.9rem;
+}
