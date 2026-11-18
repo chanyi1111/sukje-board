@@ -1,5 +1,5 @@
 import type { TaskDefinition, TaskKind } from '@/domain/game/types'
-import { TaskRuleError, type TaskAction, type TaskProgress } from './TaskProgress'
+import { EMPTY_PROGRESS, TaskRuleError, type TaskAction, type TaskProgress } from './TaskProgress'
 import { DoneState, InProgressState, LockedState, TodoState, type TaskState } from './TaskState'
 
 /**
@@ -159,5 +159,61 @@ export class ValueTask extends Task {
   }
   summary() {
     return this.progress.value === null ? '기록 없음' : this.progress.value.toLocaleString('ko-KR')
+  }
+}
+
+/**
+ * [Composite 패턴] 묶음 숙제 (예: 주간 보스)
+ * - Task(Component)를 상속하고, 자식으로 Task 들을 가진다.
+ * - 자식은 체크형 같은 단일 숙제(Leaf)일 수도, 다시 묶음일 수도 있다.
+ * - 화면·집계 코드는 묶음인지 단일 숙제인지 구분하지 않고
+ *   isComplete() / progressRatio() / summary() 를 똑같이 호출한다.
+ * - 묶음 자체에는 동작을 적용하지 않는다. 체크는 각 자식 숙제에 한다.
+ */
+export class GroupTask extends Task {
+  readonly children: readonly Task[]
+
+  constructor(definition: TaskDefinition, children: readonly Task[], locked = false) {
+    super(definition, EMPTY_PROGRESS, locked)
+    this.children = children
+  }
+
+  protected compute(): TaskProgress {
+    return this.unsupported()
+  }
+
+  protected validate(): void {}
+
+  get doneCount(): number {
+    return this.children.filter((child) => child.isComplete()).length
+  }
+
+  isComplete() {
+    return this.children.length > 0 && this.doneCount === this.children.length
+  }
+  isStarted() {
+    return this.children.some((child) => child.isStarted())
+  }
+  /** 자식 진행률의 평균 → 자식이 횟수형이어도 그대로 동작 */
+  progressRatio() {
+    if (this.children.length === 0) return 0
+    const sum = this.children.reduce((acc, child) => acc + child.progressRatio(), 0)
+    return sum / this.children.length
+  }
+  summary() {
+    return `${this.doneCount} / ${this.children.length}`
+  }
+
+  findChild(id: string): Task | undefined {
+    return this.children.find((child) => child.id === id)
+  }
+
+  /** 자식 하나를 바꾼 새 묶음 (불변) */
+  withChild(updated: Task): GroupTask {
+    return new GroupTask(
+      this.definition,
+      this.children.map((child) => (child.id === updated.id ? updated : child)),
+      this.locked,
+    )
   }
 }

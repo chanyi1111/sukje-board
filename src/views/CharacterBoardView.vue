@@ -2,9 +2,11 @@
 import { computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 
+import BossGroupRow from '@/components/task/BossGroupRow.vue'
 import TaskRow from '@/components/task/TaskRow.vue'
 import { useTaskBoard } from '@/composables/useTaskBoard'
 import { getGame } from '@/domain/game/games'
+import { GroupTask, type Task } from '@/domain/task/Task'
 import type { TaskAction } from '@/domain/task/TaskProgress'
 import { useCharacterStore } from '@/stores/characters'
 
@@ -40,6 +42,14 @@ watch(
 
 function actionFor(taskId: string) {
   return (action: TaskAction) => board.apply(taskId, action)
+}
+
+function isGroup(task: Task): task is GroupTask {
+  return task instanceof GroupTask
+}
+
+function toggleChildFor(taskId: string) {
+  return (childId: string) => board.apply(taskId, { type: 'toggle' }, childId)
 }
 </script>
 
@@ -79,12 +89,19 @@ function actionFor(taskId: string) {
             <span class="next">다음 초기화 {{ resetFormatter.format(group.nextResetAt) }}</span>
           </h2>
           <ul>
-            <TaskRow
-              v-for="item in group.items"
-              :key="item.definition.id"
-              :task="item.task"
-              :on-action="actionFor(item.definition.id)"
-            />
+            <template v-for="item in group.items" :key="item.definition.id">
+              <BossGroupRow
+                v-if="isGroup(item.task)"
+                :task="item.task"
+                :bosses="board.bosses.value"
+                :on-toggle="toggleChildFor(item.definition.id)"
+                :on-add="board.addBoss"
+                :on-update="board.updateBoss"
+                :on-remove="board.removeBoss"
+                :on-move="board.moveBoss"
+              />
+              <TaskRow v-else :task="item.task" :on-action="actionFor(item.definition.id)" />
+            </template>
           </ul>
         </section>
       </template>

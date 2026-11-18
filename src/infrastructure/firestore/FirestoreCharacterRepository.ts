@@ -55,10 +55,17 @@ export class FirestoreCharacterRepository implements CharacterRepository {
 
   async remove(uid: string, id: string): Promise<void> {
     try {
-      // Firestore 는 하위 컬렉션을 자동으로 지우지 않으므로 체크 기록을 먼저 함께 삭제한다
+      // Firestore 는 하위 컬렉션을 자동으로 지우지 않으므로 체크 기록·보스 목록을 먼저 함께 삭제한다
       const characterRef = doc(this.collectionOf(uid), id)
-      const checks = await getDocs(collection(characterRef, 'checks'))
-      const refs = [...checks.docs.map((d) => d.ref), characterRef]
+      const [checks, bosses] = await Promise.all([
+        getDocs(collection(characterRef, 'checks')),
+        getDocs(collection(characterRef, 'bosses')),
+      ])
+      const refs = [
+        ...checks.docs.map((d) => d.ref),
+        ...bosses.docs.map((d) => d.ref),
+        characterRef,
+      ]
 
       // 한 번의 batch 는 최대 500개 → 나눠서 커밋
       for (let i = 0; i < refs.length; i += BATCH_LIMIT) {

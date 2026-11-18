@@ -39,6 +39,17 @@ service cloud.firestore {
         && data.updatedAt is timestamp;
     }
 
+    function isValidBoss(data) {
+      return data.keys().hasOnly(['name', 'difficulty', 'order', 'createdAt'])
+        && data.name is string
+        && data.name.size() >= 1
+        && data.name.size() <= 20
+        && data.difficulty in ['easy', 'normal', 'hard', 'chaos', 'extreme']
+        && data.order is int
+        && data.order >= 0
+        && data.createdAt is timestamp;
+    }
+
     match /users/{uid} {
       allow read, write: if isOwner(uid);
 
@@ -55,6 +66,16 @@ service cloud.firestore {
         match /checks/{checkId} {
           allow read, delete: if isOwner(uid);
           allow create, update: if isOwner(uid) && isValidCheck(request.resource.data, checkId);
+        }
+
+        // 주간 보스 목록: 이름·난이도·순서만 바꿀 수 있다 (생성일은 변경 불가)
+        // ※ 캐릭터당 12개 제한은 앱(BossService)에서 검사한다 (Rules 로는 문서 개수를 셀 수 없음)
+        match /bosses/{bossId} {
+          allow read, delete: if isOwner(uid);
+          allow create: if isOwner(uid) && isValidBoss(request.resource.data);
+          allow update: if isOwner(uid)
+            && isValidBoss(request.resource.data)
+            && request.resource.data.createdAt == resource.data.createdAt;
         }
       }
     }

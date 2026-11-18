@@ -12,10 +12,9 @@ const MAPLESTORY: GameDefinition = {
     {
       id: 'weekly-boss',
       name: '주간 보스',
-      kind: 'value',
+      kind: 'group', // 사용자가 등록한 보스 목록이 하위 숙제가 된다 (Composite)
       reset: { type: 'weekly', dayOfWeek: 4, hour: 0 }, // 목요일 00:00
     },
-    
     {
       id: 'underground-waterway',
       name: '지하 수로',
@@ -32,7 +31,7 @@ const MAPLESTORY: GameDefinition = {
 }
 
 const TRICKCAL_DAILY = { type: 'daily', hour: 4 } as const // 매일 04:00
-const TRICKCAL_WEEKLY = { type: 'daily', dayOfWeek: 1, hour: 4} as const // 매주 월요일 04:00
+const TRICKCAL_WEEKLY = { type: 'weekly', dayOfWeek: 1, hour: 4 } as const // 매주 월요일 04:00
 
 const TRICKCAL: GameDefinition = {
   id: 'trickcal',
@@ -45,7 +44,7 @@ const TRICKCAL: GameDefinition = {
     { id: 'pvp', name: '줘팸터 (PvP)', kind: 'check', reset: TRICKCAL_DAILY },
     { id: 'short-attribute-class', name: '단기 속성반', kind: 'check', reset: TRICKCAL_DAILY },
     { id: 'restaurant', name: '연회장 식사', kind: 'check', reset: TRICKCAL_DAILY },
-    { id: 'daliy-farm', name: '평일농장 수확', kind: 'check', reset: TRICKCAL_DAILY },
+    { id: 'daily-farm', name: '평일농장 수확', kind: 'check', reset: TRICKCAL_DAILY },
     { id: 'schedule', name: '스케줄 보내기', kind: 'check', reset: TRICKCAL_DAILY },
     // 밑에 부턴 주간퀘 목록
     { id: 'login-3', name: '일일 접속 3회', kind: 'count', max: 3, reset: TRICKCAL_WEEKLY },
