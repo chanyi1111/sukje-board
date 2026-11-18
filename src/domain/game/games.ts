@@ -32,6 +32,7 @@ const MAPLESTORY: GameDefinition = {
 }
 
 const TRICKCAL_DAILY = { type: 'daily', hour: 4 } as const // 매일 04:00
+const TRICKCAL_WEEKLY = { type: 'daily', dayOfWeek: 1, hour: 4} as const // 매주 월요일 04:00
 
 const TRICKCAL: GameDefinition = {
   id: 'trickcal',
@@ -43,13 +44,19 @@ const TRICKCAL: GameDefinition = {
     { id: 'nururing-busters', name: '누루링 버스터즈', kind: 'check', reset: TRICKCAL_DAILY },
     { id: 'pvp', name: '줘팸터 (PvP)', kind: 'check', reset: TRICKCAL_DAILY },
     { id: 'short-attribute-class', name: '단기 속성반', kind: 'check', reset: TRICKCAL_DAILY },
-    // TODO(확인 필요): 주간퀘 초기화 요일
-    {
-      id: 'weekly-quest',
-      name: '주간퀘',
-      kind: 'check',
-      reset: { type: 'weekly', dayOfWeek: 1, hour: 4 },
-    },
+    { id: 'restaurant', name: '연회장 식사', kind: 'check', reset: TRICKCAL_DAILY },
+    { id: 'daliy-farm', name: '평일농장 수확', kind: 'check', reset: TRICKCAL_DAILY },
+    { id: 'schedule', name: '스케줄 보내기', kind: 'check', reset: TRICKCAL_DAILY },
+    // 밑에 부턴 주간퀘 목록
+    { id: 'login-3', name: '일일 접속 3회', kind: 'count', max: 3, reset: TRICKCAL_WEEKLY },
+    { id: 'candyreceive-5', name: '성물 수령 5회', kind: 'count', max: 5, reset: TRICKCAL_WEEKLY },
+    { id: 'shop-12', name: '상점이용 12회', kind: 'count', max: 12, reset: TRICKCAL_WEEKLY },
+    { id: 'bigcandy-1000', name: '왕사탕 1000개 소모', kind: 'check', reset: TRICKCAL_WEEKLY },
+    { id: 'starcandy-500', name: '별사탕 500개 소모', kind: 'check', reset: TRICKCAL_WEEKLY },
+    { id: 'schedule-10', name: '스케줄 보내기 10회', kind: 'count', max: 10, reset: TRICKCAL_WEEKLY },
+    { id: 'random-1', name: '랜덤 숙제 1', kind: 'check', reset: TRICKCAL_WEEKLY },
+    { id: 'random-2', name: '랜덤 숙제 2', kind: 'check', reset: TRICKCAL_WEEKLY },
+    { id: 'random-3', name: '랜덤 숙제 3', kind: 'check', reset: TRICKCAL_WEEKLY },
   ],
 }
 

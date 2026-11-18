@@ -22,7 +22,7 @@ service cloud.firestore {
     // 횟수형 숙제의 최대 횟수 (src/domain/game/games.ts 와 같은 값으로 유지)
     // 목록에 없는 숙제: 체크형은 0/1, 값 기록형은 count 0 만 허용
     function maxCountFor(taskId) {
-      return {'theme-dungeon': 20, 'big-candy': 10}.get(taskId, 1);
+      return {'theme-dungeon': 20, 'big-candy': 10, 'schedule-10': 10, 'shop-12': 12, 'candyreceive-5': 5, 'login-3': 3}.get(taskId, 1);
     }
 
     function isValidCheck(data, checkId) {
