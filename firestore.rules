@@ -19,6 +19,26 @@ service cloud.firestore {
         && data.createdAt is timestamp;
     }
 
+    // 횟수형 숙제의 최대 횟수 (src/domain/game/games.ts 와 같은 값으로 유지)
+    // 목록에 없는 숙제: 체크형은 0/1, 값 기록형은 count 0 만 허용
+    function maxCountFor(taskId) {
+      return {'theme-dungeon': 20, 'big-candy': 10}.get(taskId, 1);
+    }
+
+    function isValidCheck(data, checkId) {
+      return data.keys().hasOnly(['taskId', 'periodKey', 'count', 'value', 'updatedAt'])
+        && data.taskId is string
+        && data.periodKey is string
+        && data.periodKey.matches('^[DW][0-9]{4}-[0-9]{2}-[0-9]{2}$')
+        && checkId == data.periodKey + '_' + data.taskId
+        && data.count is int
+        && data.count >= 0
+        && data.count <= maxCountFor(data.taskId)
+        && (data.value == null
+            || (data.value is number && data.value >= 0 && data.value <= 1000000000))
+        && data.updatedAt is timestamp;
+    }
+
     match /users/{uid} {
       allow read, write: if isOwner(uid);
 
@@ -30,6 +50,12 @@ service cloud.firestore {
           && isValidCharacter(request.resource.data)
           && request.resource.data.gameId == resource.data.gameId
           && request.resource.data.createdAt == resource.data.createdAt;
+
+        // 숙제 진행 기록: 주기·숙제당 문서 하나, 값 범위 검증
+        match /checks/{checkId} {
+          allow read, delete: if isOwner(uid);
+          allow create, update: if isOwner(uid) && isValidCheck(request.resource.data, checkId);
+        }
       }
     }
   }

@@ -21,6 +21,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/characters/:id',
+      name: 'character-board',
+      component: () => import('@/views/CharacterBoardView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
