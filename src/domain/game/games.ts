@@ -15,18 +15,18 @@ const MAPLESTORY: GameDefinition = {
       kind: 'value',
       reset: { type: 'weekly', dayOfWeek: 4, hour: 0 }, // 목요일 00:00
     },
-    // TODO(확인 필요): 지하 수로·에픽 던전 초기화 요일/시각
+    
     {
       id: 'underground-waterway',
       name: '지하 수로',
       kind: 'value',
-      reset: { type: 'weekly', dayOfWeek: 1, hour: 0 },
+      reset: { type: 'weekly', dayOfWeek: 4, hour: 0 }, // 목요일 00:00
     },
     {
       id: 'epic-dungeon',
       name: '에픽 던전',
       kind: 'check',
-      reset: { type: 'weekly', dayOfWeek: 1, hour: 0 },
+      reset: { type: 'weekly', dayOfWeek: 4, hour: 0 }, // 목요일 00:00
     },
   ],
 }
