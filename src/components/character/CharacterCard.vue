@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 
 import { CHARACTER_NAME_MAX_LENGTH, type Character } from '@/domain/character/Character'
 import { useCharacterStore } from '@/stores/characters'
@@ -83,7 +84,12 @@ async function confirmDelete() {
     </div>
 
     <div v-else class="row">
-      <span class="name">{{ character.name }}</span>
+      <RouterLink
+        :to="{ name: 'character-board', params: { id: character.id } }"
+        class="name"
+      >
+        {{ character.name }} <span class="go">숙제 보기 →</span>
+      </RouterLink>
       <button type="button" @click="startEdit">이름 수정</button>
       <button type="button" @click="confirmingDelete = true">삭제</button>
     </div>
@@ -108,6 +114,19 @@ async function confirmDelete() {
 .confirm-text {
   flex: 1;
   font-weight: 600;
+}
+.name {
+  color: inherit;
+  text-decoration: none;
+}
+.name:hover {
+  color: #3b4cca;
+}
+.go {
+  margin-left: 6px;
+  color: #8a90a2;
+  font-size: 0.8rem;
+  font-weight: 400;
 }
 input {
   flex: 1;
