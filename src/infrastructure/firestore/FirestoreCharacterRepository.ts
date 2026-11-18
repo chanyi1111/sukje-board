@@ -1,12 +1,12 @@
 import {
   addDoc,
   collection,
-  deleteDoc,
   doc,
   getDocs,
   orderBy,
   query,
   updateDoc,
+  writeBatch,
   type Firestore,
 } from 'firebase/firestore'
 
@@ -15,6 +15,8 @@ import type { CharacterRepository } from '@/domain/character/CharacterRepository
 import { FirebaseClient } from '@/infrastructure/firebase/FirebaseClient'
 import { fromCharacterDoc, toCharacterDoc } from './characterAdapter'
 import { toDataError } from './firestoreErrors'
+
+const BATCH_LIMIT = 450
 
 /** CharacterRepository 를 Firestore(users/{uid}/characters)로 구현 */
 export class FirestoreCharacterRepository implements CharacterRepository {
@@ -53,8 +55,17 @@ export class FirestoreCharacterRepository implements CharacterRepository {
 
   async remove(uid: string, id: string): Promise<void> {
     try {
-      // TODO: 숙제 체크 기록(하위 컬렉션)이 생기면 함께 삭제하도록 확장
-      await deleteDoc(doc(this.collectionOf(uid), id))
+      // Firestore 는 하위 컬렉션을 자동으로 지우지 않으므로 체크 기록을 먼저 함께 삭제한다
+      const characterRef = doc(this.collectionOf(uid), id)
+      const checks = await getDocs(collection(characterRef, 'checks'))
+      const refs = [...checks.docs.map((d) => d.ref), characterRef]
+
+      // 한 번의 batch 는 최대 500개 → 나눠서 커밋
+      for (let i = 0; i < refs.length; i += BATCH_LIMIT) {
+        const batch = writeBatch(this.db)
+        refs.slice(i, i + BATCH_LIMIT).forEach((ref) => batch.delete(ref))
+        await batch.commit()
+      }
     } catch (error) {
       throw toDataError(error)
     }
