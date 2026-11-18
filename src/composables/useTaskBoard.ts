@@ -1,4 +1,4 @@
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 
 import type { Character } from '@/domain/character/Character'
 import type { TaskAction } from '@/domain/task/TaskProgress'
@@ -21,7 +21,9 @@ export function setTaskService(custom: TaskService): void {
 export function useTaskBoard() {
   const auth = useAuthStore()
 
-  const items = ref<TaskItem[]>([])
+  // shallowRef: Task 는 클래스 인스턴스라 ref() 로 깊게 감싸면 protected 멤버가 타입에서 사라지고
+  // 불필요한 Proxy 가 생긴다. 숙제 객체는 불변으로 다루고 배열을 통째로 교체하므로 얕은 반응성이면 충분하다.
+  const items = shallowRef<TaskItem[]>([])
   const status = ref<'idle' | 'loading' | 'ready' | 'error'>('idle')
   const loadError = ref('')
   let current: Character | null = null
