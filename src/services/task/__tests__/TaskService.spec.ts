@@ -83,3 +83,30 @@ describe('TaskService', () => {
     expect(repo.saved).toHaveLength(1)
   })
 })
+
+describe('TaskService — 주간 보스 묶음 숙제', () => {
+  const maple: Character = { id: 'm1', gameId: 'maplestory', name: 'Hero', createdAt: new Date(0) }
+  const bosses = [
+    { id: 'b1', name: '스우', difficulty: 'hard', order: 0, createdAt: new Date(0) },
+    { id: 'b2', name: '데미안', difficulty: 'hard', order: 1, createdAt: new Date(0) },
+  ] as const
+
+  it('등록한 보스가 주간 보스의 하위 숙제가 되고, 하위 숙제 체크가 저장된다', async () => {
+    const repo = new InMemoryCheckRepository()
+    let now = kst('2026-11-19T10:00:00')
+    const service = new TaskService(repo, () => now)
+
+    const board = await service.loadBoard('u1', maple, [...bosses])
+    const weeklyBoss = board.find((i) => i.definition.id === 'weekly-boss')!
+    expect(weeklyBoss.task.summary()).toBe('0 / 2')
+
+    const updated = await service.apply('u1', 'm1', weeklyBoss, { type: 'toggle' }, 'boss-b1')
+    expect(updated.task.summary()).toBe('1 / 2')
+    expect(repo.saved[0]).toMatchObject({ taskId: 'boss-b1', periodKey: 'W2026-11-19', count: 1 })
+
+    // 다음 주 목요일 00:00 → 보스 목록은 그대로, 체크만 초기화
+    now = kst('2026-11-26T00:00:00')
+    const nextWeek = await service.loadBoard('u1', maple, [...bosses])
+    expect(nextWeek.find((i) => i.definition.id === 'weekly-boss')!.task.summary()).toBe('0 / 2')
+  })
+})
